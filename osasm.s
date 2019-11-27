@@ -19,15 +19,24 @@
 
 SysTick_Handler                ; 1) Saves R0-R3,R12,LR,PC,PSR
     CPSID   I                  ; 2) Prevent interrupt during switch
-
+	PUSH {R4-R11}
+	LDR R0, =RunPt
+	LDR R1, [R0]
+	STR SP, [R1]
+	PUSH {R0, LR}
+	BL Scheduler
+	POP {R0, LR}
+	LDR R1, [R0]
+	LDR SP, [R1]
+	POP {R4-R11}
     CPSIE   I                  ; 9) tasks run with interrupts enabled
     BX      LR                 ; 10) restore R0-R3,R12,LR,PC,PSR
 
 StartOS
 
-    LDR R0, =Runpt
+    LDR R0, =RunPt
 	LDR R1, [R0]
-	LDR SP, R1
+	LDR SP, [R1]
 	POP {R4-R11} ;eight registers first
 	POP {R0-R3} ;Four more registers loaded from stack done in even 
 	POP {R12}
