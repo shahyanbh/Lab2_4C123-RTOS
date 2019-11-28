@@ -151,7 +151,7 @@ void OS_Launch(uint32_t theTimeSlice){
   STCTRL = 0x00000007;         // enable, core clock and interrupt arm
   StartOS();                   // start on the first task
 }
-//// runs every ms
+// runs every ms
 //void Scheduler(void){ // every time slice
 //  // run any periodic event threads if needed
 //  // implement round robin scheduler, update RunPt
@@ -163,7 +163,7 @@ void OS_Launch(uint32_t theTimeSlice){
 uint32_t Counter;
 void Scheduler(void){
   Counter = (Counter+1)%100; // 0 to 49
-  if((Counter%1) == 1){ // 1, 2
+  if((Counter%1) == 0){ // 1, 2
     (*PT1)();
   }
   if((Counter%100) == 0){ // 100 and 200
@@ -189,12 +189,12 @@ void OS_InitSemaphore(int32_t *semaPt, int32_t value){
 // Outputs: none
 void OS_Wait(int32_t *semaPt){
  DisableInterrupts();
-	while (semaPt <= 0)
+	while ((*semaPt) == 0)
 	{
 		EnableInterrupts();  //atomic semapt read load and write operation critical section
 		DisableInterrupts();
 	}
-	*semaPt = *semaPt - 1; // *semaPt--; doesnt work
+	(*semaPt) = (*semaPt) - 1; // *semaPt--; doesnt work
 	EnableInterrupts();
 }
 
@@ -207,7 +207,7 @@ void OS_Wait(int32_t *semaPt){
 void OS_Signal(int32_t *semaPt){
 //***YOU IMPLEMENT THIS FUNCTION*****
 	DisableInterrupts();
-	*semaPt = *semaPt + 1;
+	(*semaPt) = (*semaPt) + 1;
 	EnableInterrupts();
 }
 
@@ -227,7 +227,7 @@ void OS_MailBox_Init(void){
   // include data field and semaphore
   //***YOU IMPLEMENT THIS FUNCTION*****
 	OS_InitSemaphore(&Send,0);
-  OS_InitSemaphore(&Ack,0);
+  //OS_InitSemaphore(&Ack,0);
 }
 
 // ******** OS_MailBox_Send ************
@@ -259,12 +259,12 @@ void OS_MailBox_Send(uint32_t data){
 // Inputs:  none
 // Outputs: data retreived
 // Errors:  none
-uint32_t OS_MailBox_Recv(void){ uint32_t data;
+uint32_t OS_MailBox_Recv(void){ 
   //***YOU IMPLEMENT THIS FUNCTION*****
 	OS_Wait(&Send);
-	data = Mail;
+	
 	//OS_Signal(&Ack);
-  return data;
+  return Mail;
 }
 
 
